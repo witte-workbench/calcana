@@ -166,10 +166,8 @@ Node* AST(vector<string> tokens) {
         string token = nextTok();
         Node* lhs;
         // Parse prefix
-        if (std::regex_match(token, std::regex("^[0-9]+$"))) {
-            lhs = new Node("Integer", token);
-        } else if (std::regex_match(token, std::regex("^[0-9]+\\.[0-9]+$"))) {
-            lhs = new Node("Decimal", token);
+        if (std::regex_match(token, std::regex("^[0-9]+(\\.[0-9]+)?$"))) {
+            lhs = new Node("Number", token);
         } else if (std::regex_match(token, std::regex("^[0-9]+e[0-9]+$"))) {
             lhs = new Node("Scientific", token);
         } else if (std::regex_match(token, std::regex("^[\\$][0-9]+e[0-9]+$"))) {
@@ -234,14 +232,14 @@ void walkTree(Node* ast, MyTable* table) {
                 acc += stof(child->value);
             }
             ast->value = toString(acc);
-            ast->type = "Decimal";
+            ast->type = "Number";
         } else if (ast->value == "AVERAGE") {
             float acc = 0;
             for (Node* child : ast->children) {
                 acc += stof(child->value);
             }
             ast->value = toString(acc / ast->children.size());
-            ast->type = "Decimal";
+            ast->type = "Number";
         } else if (ast->value == "CONCAT") {
             string acc = "";
             for (Node* child : ast->children) {
@@ -251,7 +249,7 @@ void walkTree(Node* ast, MyTable* table) {
             ast->type = "Text";
         } else if (ast->value == "COUNTA") {
             ast->value = toString(ast->children.size());
-            ast->type = "Integer";
+            ast->type = "Number";
         } else if (ast->value == "COUNTBLANK") {
             float acc = 0;
             for (Node* child : ast->children) {
@@ -259,7 +257,7 @@ void walkTree(Node* ast, MyTable* table) {
                     acc++;
             }
             ast->value = toString(acc);
-            ast->type = "Integer";
+            ast->type = "Number";
         } else if (ast->value == "IF") {
             ast->value = ast->children[0]->value=="TRUE" ? ast->children[1]->value : ast->children[2]->value;
             ast->type = ast->children[0]->value=="TRUE" ? ast->children[1]->type : ast->children[2]->type;
@@ -270,7 +268,7 @@ void walkTree(Node* ast, MyTable* table) {
                     acc = stof(child->value);
             }
             ast->value = toString(acc);
-            ast->type = "Decimal";
+            ast->type = "Number";
         } else if (ast->value == "MIN") {
             float acc = stof(ast->children[0]->value);
             for (Node* child : ast->children) {
@@ -278,7 +276,7 @@ void walkTree(Node* ast, MyTable* table) {
                     acc = stof(child->value);
             }
             ast->value = toString(acc);
-            ast->type = "Decimal";
+            ast->type = "Number";
         } else if (ast->value == "LOWER") {
             ast->value = to_lower(ast->children[0]->value);
             ast->type = "Text";
@@ -293,7 +291,7 @@ void walkTree(Node* ast, MyTable* table) {
                 acc *= base;
             }
             ast->value = toString(acc);
-            ast->type = "Decimal";
+            ast->type = "Number";
         }
     } else if (ast->type == "Operator") {
         if (ast->value == "+") {
@@ -307,7 +305,7 @@ void walkTree(Node* ast, MyTable* table) {
         } else if (ast->value == "^") {
             ast->value = toString(pow (stoi(ast->children[0]->value) , stoi(ast->children[1]->value )));
         }
-        ast->type = "Decimal";
+        ast->type = "Number";
         ast->children = {};
     }
 }

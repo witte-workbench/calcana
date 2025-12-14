@@ -5,6 +5,7 @@
 #include <FL/fl_ask.H>       // for fl_input()
 #include <FL/Fl_Group.H>
 #include <FL/Fl_Button.H>
+#include <FL/Fl_Input.H>
 
 #include <vector>
 #include <string>
@@ -140,18 +141,14 @@ int MyTable::handle(int event) {
     if (callback_context() == CONTEXT_CELL) {
         if (event == FL_PUSH
             && Fl::event_button() == FL_LEFT_MOUSE
-            && Fl::event_clicks() == 1)
+            && Fl::event_clicks() == 1) // double click
         {
-            int R = callback_row(), C = callback_col();
-            const char* newval = fl_input("Edit cell:", data[R][C].raw_value.c_str());
-            if (newval) {
-                data[R][C].set_raw(newval, false);
-                redraw();
-            }
+            selectTextBox();
             return 1;
-        } else if (event == FL_PUSH
+        } else if (event == FL_PUSH // single click
             && Fl::event_button() == FL_LEFT_MOUSE
             && callback_context() == CONTEXT_CELL) {
+            Fl::focus(table);
             int r, c;
             Fl_Table::ResizeFlag rf;
             Fl_Table::TableContext ctx = cursor2rowcol(r, c, rf);

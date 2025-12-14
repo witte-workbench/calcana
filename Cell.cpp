@@ -95,7 +95,7 @@ void Cell::compute_value() {
 }
 
 void Cell::compute_type() {
-    if (this->type!="auto")
+    if (this->type!="Auto")
         this->computed_type = this->type;
 
     // parse types from most to least specific
@@ -105,10 +105,8 @@ void Cell::compute_type() {
     // }
     if (this->computed_value=="TRUE" || this->computed_value=="FALSE") {
         this->computed_type = "True/False";
-    } else if (std::regex_match(this->computed_value, std::regex("^[0-9]+$"))) {
-        this->computed_type = "Integer";
-    } else if (std::regex_match(this->computed_value, std::regex("^[0-9]+\\.[0-9]+$"))) {
-        this->computed_type = "Decimal";
+    } else if (std::regex_match(this->computed_value, std::regex("^[0-9]+(\\.[0-9]+)?$"))) {
+        this->computed_type = "Number";
     } else if (std::regex_match(this->computed_value, std::regex("^[0-9]\\.?[0-9]?e[0-9]+$"))) {
         this->computed_type = "Scientific";
     } else if (std::regex_match(this->computed_value, std::regex("^\\$[0-9]+\\.?[0-9]?$"))) {
@@ -118,4 +116,5 @@ void Cell::compute_type() {
     } else {
         this->computed_type = "Text";
     }
+    cout << this->computed_type << endl;
 }

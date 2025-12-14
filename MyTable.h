@@ -37,6 +37,7 @@ public:
     int selStartR = -1, selStartC = -1, selEndR = -1, selEndC = -1;
     bool selectionMade = false;
     function<void(string, string)> selectionUpdateFunc = nullptr;
+    function<void()> selectTextBox = nullptr;
     void setSelectedType(string);
     void setSelectedValue(string);
     void do_redraw();

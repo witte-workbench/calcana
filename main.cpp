@@ -15,6 +15,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <regex>
+#include <utility>
 using namespace std;
 
 #include "Cell.h"
@@ -29,11 +30,12 @@ using namespace std;
 
 // Toolbar callbacks
 static void updateValue(Fl_Widget* w, void* u) {
-    MyTable* table = (MyTable*) u;
-    auto ch   = static_cast<Fl_Input*>(w);
+    auto* pair = static_cast<std::pair<MyTable*, Fl_Input*>*>(u);
+    MyTable* table = pair->first;
+    auto ch   = pair->second;
     auto item = ch->value();
     table->setSelectedValue(item);
-    Fl::focus(nullptr);
+    Fl::focus(table);
 }
 static void btn1_cb(Fl_Widget* w, void* u) {
     MyTable* table = (MyTable*) u;
@@ -58,10 +60,10 @@ int main() {
     const int TOOLBAR_H=60, STATUS_H=20;
     const int W=1000, H=1000;
 
-    Fl_Window win(WIDTH, HEIGHT, "Spreadsheet Demo");
+    Fl_Window win(WIDTH, HEIGHT, "Calcana");
 
     // Toolbar
-    Fl_Button *btn1, *btn2;//, *textConfirm;
+    Fl_Button *btn1, *btn2, *textConfirm;
     Fl_Choice *dropdown;
     Fl_Input *textInput;
     Fl_Group toolbar(0,0,WIDTH,TOOLBAR_H);
@@ -70,15 +72,14 @@ int main() {
         dropdown = new Fl_Choice(225, 5, 120, 20, "Type");
         dropdown->add("Auto");
         dropdown->add("Text");
-        dropdown->add("Integer");
-        dropdown->add("Decimal");
+        dropdown->add("Number");
         dropdown->add("Sceintific");
         dropdown->add("Date");
         dropdown->add("Currency");
         dropdown->add("True\\/False");
         dropdown->value(0);
         textInput = new Fl_Input(45, 30, 600, 20, "Value");
-        // textConfirm = new Fl_Button(650,30, 80, 20, "✓");
+        textConfirm = new Fl_Button(650,30, 80, 20, "✓");
     toolbar.end();
 
     // Table area
@@ -91,12 +92,17 @@ int main() {
         dropdown->value( dropdown->find_item(type.c_str()) );
         textInput->value( val.c_str() );
     };
+    table.selectTextBox = [textInput]() {
+        Fl::focus(textInput);
+    };
 
     // Status bar
-    Fl_Button *tab1Btn;
+    Fl_Button *tab1Btn, *tab2Btn;
     Fl_Group tabs(0, HEIGHT-STATUS_H, WIDTH, STATUS_H);
     tab1Btn = new Fl_Button(5, HEIGHT-STATUS_H+2,
-                                WIDTH-10, STATUS_H-4, "Tab 1");
+                                WIDTH/2-10, STATUS_H-4, "Tab 1");
+    tab2Btn = new Fl_Button(5+WIDTH/2, HEIGHT-STATUS_H+2,
+                                WIDTH-10, STATUS_H-4, "Tab 2");
     tabs.end();
 
     // Assign callbacks
@@ -105,8 +111,10 @@ int main() {
     tab1Btn->callback(tab1_cb, &table);
     dropdown->callback(dropdown_cb, &table);
     dropdown->when(FL_WHEN_CHANGED);
-    textInput->callback(updateValue, &table);
+    auto* cbData = new std::pair<MyTable*, Fl_Input*>(&table, textInput);
+    textInput->callback(updateValue, cbData);
     textInput->when(FL_WHEN_ENTER_KEY);
+    textConfirm->callback(updateValue, cbData);
 
     win.resizable(&tableArea);
     win.end();
